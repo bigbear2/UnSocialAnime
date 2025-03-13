@@ -54,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        getPermissNotify();
-        checkAndRequestPermissions(); // Richiedi i permessi per l'accesso ai file
+        checkAndRequestPermissions();
 
         activity = this;
         webView = findViewById(R.id.webview);
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("link")) {
             String link = intent.getStringExtra("link");
-            webView.loadUrl("https://socialanime.it/" + link); // Carica il link nella WebView
+            webView.loadUrl("https://socialanime.it/" + link);
         } else {
             // Carica la pagina principale
             webView.loadUrl("https://socialanime.it/community");
@@ -87,7 +86,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getPermissNotify() {
-        // Controlla e richiedi il permesso se necessario
+
+    }
+
+    private void checkAndRequestPermissions() {
+
+        // Controlla e richiedi il permesso se necessario delle notifiche e dell'accesso ai file
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -96,9 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         REQUEST_CODE_POST_NOTIFICATIONS);
             }
         }
-    }
 
-    private void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -232,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showDialog() {
+    public void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Scegli un'opzione")
                 .setItems(new String[]{"Opzione 1", "Opzione 2", "Opzione 3"}, new DialogInterface.OnClickListener() {

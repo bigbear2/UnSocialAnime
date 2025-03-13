@@ -1,5 +1,7 @@
 const USNAME = "🐲 SAHELPER";
 const ULMENU = document.querySelector("body > div.fix_nav_bar.BoxShadow1.destroy_box > div > div.right > ul");
+const UL_MENU_MOBILE_SELECTOR = "body > div.mfp-wrap.mfp-close-btn-in.mfp-auto-cursor.mfp-ready > div > div.mfp-content > div > div > ul";
+const BTN_MENU_MOBILE = $("#menu_mobile > div:nth-child(1) > div:nth-child(1) > a");
 const ISMOBILE = (ULMENU == null);
 
 function hashCode(str) {
@@ -21,46 +23,79 @@ function downloadTextFile(filename, content) {
     document.body.removeChild(link);
 }
 
-
-function createFixedButton() {
-
+function addMenuItem(id,text,onclick) {
     if (ISMOBILE) {
-        let button = document.createElement("button");
-        button.innerText = "📢";
-        button.style.position = "fixed";
-        button.style.top = "50px";
-        button.style.right = "10px";
-        button.style.padding = "10px 15px";
-        button.style.backgroundColor = "#007bff";
-        button.style.color = "white";
-        button.style.border = "none";
-        button.style.borderRadius = "5px";
-        button.style.cursor = "pointer";
-        button.style.zIndex = "9999";
-        button.style.boxShadow = "2px 2px 5px rgba(0,0,0,0.3)";
-        button.onclick = function () {
-            getContentNotifiche(false);
-        };
-        document.body.appendChild(button);
+
+        const MENU_MOBILE_ITEM = document.querySelector(UL_MENU_MOBILE_SELECTOR);
+        const MENU_MOBILE_ITEM_ANDROID = document.querySelector("#" + id);
+
+        if (MENU_MOBILE_ITEM_ANDROID != null) MENU_MOBILE_ITEM_ANDROID.remove();
+
+        html = `<li id="${id}"><a class="ripplelink" href="javascript:void(0)" onclick="${onclick}">
+                        <span class="gry sicon-view-carousel"></span> <span id="trasp">${text}</span>
+                        </a></li>`;
+
+        MENU_MOBILE_ITEM.innerHTML += html;
 
     }else{
-        let html = `<li class="menu-separator"></li><li><a target="u_blank" href="javascript:void(0)" onclick="getContentNotifiche(false)">Test Notifiche</a></li>`;
+        let html = `<li id="${id}">
+                        <a target="u_blank" href="javascript:void(0)" onclick="${onclick}">${text}</a>
+                    </li>`;
         ULMENU.innerHTML += html;
     }
-
-    /*  html = `<li><a class="ripplelink" href="javascript:void(0)" onclick="getContentNotifiche(false)">
-                        <span class="gry sicon-view-carousel"></span> <span id="trasp">Test Notifiche</span>
-                </a></li>`;
-        try {
-            document.querySelector("body > div.mfp-wrap.mfp-close-btn-in.mfp-auto-cursor.mfp-ready > div > div.mfp-content > div > div > ul").innerHTML += html;
-        }catch (e) {
-            console.error("USNAME", e);
-        }*/
 }
 
-function sendToAndroid(notifica, isJson = false) {
+function addAndroidMenu() {
+
+    if (ISMOBILE) {
+        /* $("<button>", {
+            text: "📢",
+            css: {
+                position: "fixed", top: "50px", right: "10px",
+                padding: "10px 15px", backgroundColor: "#007bff", color: "white",
+                border: "none", borderRadius: "5px", cursor: "pointer", zIndex: "9999",
+                boxShadow: "2px 2px 5px rgba(0,0,0,0.3)"
+            }, click: function () { getContentNotifiche(false); }
+        }).appendTo("body"); */
+
+
+        BTN_MENU_MOBILE.click(function () {
+            setTimeout(function () {
+                const MENU_MOBILE_ITEM = document.querySelector(UL_MENU_MOBILE_SELECTOR);
+
+                try {
+                    MENU_MOBILE_ITEM.innerHTML += `<li id="android_menu">`;
+                    addMenuItem("android_menu","Android Menu","androidMenu()");
+                }catch (e) {
+                    console.error("USNAME", e);
+                }
+            }, 500);
+        });
+
+    }else{
+        try {
+            MENU_MOBILE_ITEM.innerHTML += `<li id="android_menu">`;
+            addMenuItem("android_menu","Android Menu","androidMenu()");
+        }catch (e) {
+            console.error("USNAME", e);
+        }
+    }
+
+
+}
+
+function androidMenu() {
     if (typeof Android !== "undefined") {
-        Android.sendToAndroid(notifica, isJson);
+        Android.androidMenu();
+    } else {
+        console.error(USNAME,"Android interface non disponibile!");
+        alert("Android interface non disponibile!");
+    }
+}
+
+function androidNotification(notifica, isJson = false) {
+    if (typeof Android !== "undefined") {
+        Android.androidNotification(notifica, isJson);
     } else {
         console.error(USNAME,"Android interface non disponibile!");
     }
@@ -111,7 +146,7 @@ function analizzaNotifiche(html,soloNonLette = true) {
     console.debug(USNAME, notifiche);
 
     let json_notifiche = JSON.stringify(notifiche);
-    sendToAndroid(json_notifiche, true);
+    androidNotification(json_notifiche, true);
     if (!soloNonLette) {
         downloadTextFile("notifiche.json", json_notifiche);
     }
@@ -134,14 +169,16 @@ function getNumeroNotifiche() {
     $.get("https://socialanime.it/ico_notifica.php?notifiy_mobile_mode", function(result){
         let notifica = result.trim();
         if (!isNaN(notifica) && parseInt(notifica) > 0) {
-            sendToAndroid("Hai " + notifica + " Notifiche Non Lette");
+            androidNotification("Hai " + notifica + " Notifiche Non Lette");
             getContentNotifiche(true);
         }
     });
 }
 
-createFixedButton();
+
+
+addAndroidMenu();
 getNumeroNotifiche();
-setInterval(function(){
+let intervalNotifiche = setInterval(function(){
     getNumeroNotifiche();
 }, 10000);

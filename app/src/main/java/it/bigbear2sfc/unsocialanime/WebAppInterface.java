@@ -1,7 +1,6 @@
 package it.bigbear2sfc.unsocialanime;
 
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -39,7 +38,7 @@ public class WebAppInterface {
     private final MainActivity activity;
     private static final String CHANNEL_ID = "social_anime_channel";
     private String LastNotify = "";
-    private List<String> LinkNotifiche = new ArrayList<String>();
+    private final List<String> LinkNotifiche = new ArrayList<String>();
 
     // Costruttore
     public WebAppInterface(MainActivity activity) {
@@ -50,7 +49,7 @@ public class WebAppInterface {
 
     // Metodo esposto a JavaScript
     @JavascriptInterface
-    public void sendToAndroid(String notifica, boolean isJson) {
+    public void androidNotification(String notifica, boolean isJson) {
 
         if (isJson) {
             parseJsonWithGson(notifica);
@@ -65,6 +64,13 @@ public class WebAppInterface {
             int randomNumber = (int) (Math.random() * 21);
             createNotification("Nuova Notifica", notifica, LINK_MAIN, "", randomNumber + 100);
         }
+    }
+
+    @JavascriptInterface
+    public void androidMenu() {
+
+        this.activity.runOnUiThread(activity::showDialog);
+
     }
 
     // Crea un canale di notifica (obbligatorio per Android 8.0 e superiori)
