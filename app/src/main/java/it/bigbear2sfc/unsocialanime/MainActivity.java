@@ -1,10 +1,16 @@
 package it.bigbear2sfc.unsocialanime;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
+import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -13,6 +19,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -31,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private MainActivity activity;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 1;
+    private static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 2;
+    private static final int FILE_CHOOSER_REQUEST_CODE = 1;
+    private ValueCallback<Uri[]> filePathCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +55,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         getPermissNotify();
+        checkAndRequestPermissions(); // Richiedi i permessi per l'accesso ai file
 
         activity = this;
         webView = findViewById(R.id.webview);
         WebView.setWebContentsDebuggingEnabled(true);
         initWebView();
-
 
         // Imposta un WebViewClient personalizzato per iniettare JavaScript dopo il caricamento della pagina
         webView.setWebViewClient(new WebViewClient() {
@@ -73,10 +84,9 @@ public class MainActivity extends AppCompatActivity {
             // Carica la pagina principale
             webView.loadUrl("https://socialanime.it/community");
         }
-
     }
 
-    private void getPermissNotify(){
+    private void getPermissNotify() {
         // Controlla e richiedi il permesso se necessario
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // API 33
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -87,11 +97,20 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    // Gestisci la risposta dell'utente
+
+    private void checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_CODE_READ_EXTERNAL_STORAGE);
+        }
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ShowToast("Permesso concesso: puoi inviare notifiche");
@@ -99,25 +118,30 @@ public class MainActivity extends AppCompatActivity {
                 ShowToast("Permesso negato: non puoi inviare notifiche");
             }
         }
+
+        if (requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                System.out.println("Permesso concesso: puoi accedere ai file");
+            } else {
+                System.out.println("Permesso negato: non puoi accedere ai file");
+            }
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private void initWebView() {
-
-
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(true);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-
         webView.getSettings().setSaveFormData(true);
         webView.getSettings().setLoadWithOverviewMode(true);
         webView.getSettings().setGeolocationEnabled(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         webView.getSettings().setUseWideViewPort(getIntent().getBooleanExtra("isSupportZoom", true));
         webView.getSettings().setAllowContentAccess(true);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             webView.getSettings().setDisplayZoomControls(false);
             webView.getSettings().setSupportZoom(getIntent().getBooleanExtra("isSupportZoom", true));
@@ -126,11 +150,40 @@ public class MainActivity extends AppCompatActivity {
 
         webView.addJavascriptInterface(new WebAppInterface(this), "Android");
 
-        /*mWebView.setWebChromeClient(new MyWebChromeClient());//重写一下
-        mWebView.setWebViewClient(new MyWebViewClient());
-        mWebView.addJavascriptInterface(new CustomScriptInterface(), "HTMLOUT");*/
+        // Configura il WebChromeClient personalizzato
+        webView.setWebChromeClient(new MyWebChromeClient());
+    }
 
+    private class MyWebChromeClient extends WebChromeClient {
+        @Override
+        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+            // Salva il callback per restituire il file selezionato
+            MainActivity.this.filePathCallback = filePathCallback;
 
+            // Avvia l'intent per selezionare un file
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*"); // Accetta tutti i tipi di file
+            startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
+
+            return true;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == FILE_CHOOSER_REQUEST_CODE && filePathCallback != null) {
+            Uri[] results = null;
+            if (resultCode == RESULT_OK && data != null) {
+                // Ottieni l'URI del file selezionato
+                results = new Uri[]{data.getData()};
+            }
+            // Restituisci il risultato al WebView
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null; // Resetta il callback
+        }
     }
 
     // Metodo per leggere il file JavaScript dalla cartella assets
@@ -159,6 +212,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        // Infla il menu contestuale
+        getMenuInflater().inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        // Gestisci la selezione del menu
+        if (item.getTitle().equals("Opzione 1")) {
+            return true;
+        } else if (item.getTitle().equals("Opzione 2")) {
+            return true;
+        } else if (item.getTitle().equals("Opzione 3")) {
+            return true;
+        } else {
+            return super.onContextItemSelected(item);
+        }
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Scegli un'opzione")
+                .setItems(new String[]{"Opzione 1", "Opzione 2", "Opzione 3"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Gestisci la selezione dell'utente
+                        switch (which) {
+                            case 0:
+                                // Azione per l'opzione 1
+                                break;
+                            case 1:
+                                // Azione per l'opzione 2
+                                break;
+                            case 2:
+                                // Azione per l'opzione 3
+                                break;
+                        }
+                    }
+                });
+        builder.create().show();
+    }
+
+    @Override
     public void onBackPressed() {
         // Se la WebView può tornare indietro, torna indietro invece di chiudere l'app
         if (webView.canGoBack()) {
@@ -167,5 +264,4 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-
 }
