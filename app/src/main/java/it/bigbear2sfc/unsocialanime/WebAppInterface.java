@@ -110,6 +110,7 @@ public class WebAppInterface {
                 .setContentText(message) // Messaggio della notifica
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Priorità della notifica
                 .setContentIntent(pendingIntent) // Aggiungi l'intent
+
                 .setAutoCancel(true); // Chiudi la notifica quando viene cliccata
 
         // Se è presente un URL dell'icona, scarica l'immagine e impostala come icona personalizzata
@@ -155,13 +156,13 @@ public class WebAppInterface {
                     notifica.getId());
             id++;
 
-            System.out.println("ID: " + notifica.getId());
+            /*System.out.println("ID: " + notifica.getId());
             System.out.println("Titolo: " + notifica.getTitolo());
             System.out.println("Descrizione: " + notifica.getDescrizione());
             System.out.println("Link: " + notifica.getLink());
             System.out.println("Data: " + notifica.getData());
             System.out.println("Icona: " + notifica.getIcona());
-            System.out.println("-----------------------------");
+            System.out.println("-----------------------------");*/
         }
     }
 

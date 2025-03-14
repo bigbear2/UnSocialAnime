@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">UnSocialAnime</string>
+    <string name="elimina_webview_cache">Elimina WebView Cache</string>
 </resources>

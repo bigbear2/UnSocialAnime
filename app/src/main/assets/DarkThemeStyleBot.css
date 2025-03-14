@@ -1,0 +1,151 @@
+/*
+    Vecchio Tema Usato prima che aggiungessero il Dark Theme sul sito
+    Non sapevo dove salvarlo
+*/
+
+/* General Page Styling */
+html, body {
+    background-color: #292929;
+}
+
+/* Navigation Bar */
+div.fix_nav_bar {
+    background-color: #202020;
+    border-bottom: 0px;
+}
+
+/* Post and Comment Sections */
+.sectionpost,
+.comment.animated {
+    background-color: #1e1e1e;
+}
+.sectionpost {
+    border-radius: 4px;
+}
+
+/* Active Menu */
+.active_menu {
+    background-color: #cf6679;
+    color: #ffffff;
+    border-radius: 3px;
+    border-left: none;
+}
+
+/* Text Colors */
+.testo_post,
+.user_name,
+.content_comment > span,
+.content_comment > a
+{
+    color: #ffffff;
+}
+
+/* Button Section Styling */
+div.section.bordo.BoxShadow1.btn-crea_post, .num_aggiornamenti, .count_numb_style  {
+    background-color: #cf6679;
+    color: white;
+}
+
+/* Icons and Buttons */
+.sicon-thumb-up,
+.button_post_button_description,
+.sicon-bubbles,
+.socialb {
+    color: #cf6679;
+    /* Alternative color: #03dac6 */
+}
+
+/* Comment Border */
+div.comment.animated {
+    border-top: 1px solid #cf6679;
+}
+
+/* Visual Content Styling */
+.visual_content_span > div:nth-child(2) ,
+.visual_content_span > span {
+    background-color: #292929;
+    padding: 3px;
+    color: white;
+}
+.visual_content_span > div:first-child {
+    color: white;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+.visual_content_span > span {
+    color: white;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+/* Menu Types */
+.type_feed_menu {
+    background-color: #1f1f1f;
+}
+.menu_item > div {
+    font-weight: normal;
+    color: #cf6679;
+}
+
+/* News Title */
+#load_news_tit, .box_project > a, 
+.box3_project_child > div  {
+    font-weight: normal;
+    color: gray;
+    background-color: #1f1f1f;
+    border-radius: 3px;
+}
+
+/* Project Boxes */
+.box3_project {
+    background-color: #1e1e1e;
+    border-radius: 3px;
+    padding: 3px;
+    
+}
+
+/* Line Project */
+.linea_project_js {
+    background-color: #1f1f1f;
+    
+}
+
+/* Main Container Styling */
+#main > div.box.box3 > div > div {
+    border-color: transparent;
+}
+
+/* Section Menus */
+.sectionmenu,
+.box3_project {
+    background-color: #1e1e1e;
+    border-radius: 3px;
+}
+
+/* Post Card */
+.scheda_post {
+    background-color: #292929;
+}
+
+/* Post Content and Links */
+.scheda_post_cont,
+.scheda_post_cont > a > b,
+.black_href,
+.BoxShadow1 > div > div,
+.BoxShadow1 > div > div > a,
+.visual_content_span > div:nth-child(2) > a > b {
+    /*color: white;*/
+}
+
+/* Visual Content with Box Shadow */
+.visual_content_span > .BoxShadow1 {
+    background-color: #292929;
+}
+
+div.box3_project.linea_js{
+  border-bottom: 0;
+}
+
+.active_feed_menu > div{
+  border-bottom: 2px solid #cf6679;
+}

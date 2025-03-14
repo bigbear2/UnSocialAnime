@@ -3,7 +3,7 @@ const ULMENU = document.querySelector("body > div.fix_nav_bar.BoxShadow1.destroy
 const UL_MENU_MOBILE_SELECTOR = "body > div.mfp-wrap.mfp-close-btn-in.mfp-auto-cursor.mfp-ready > div > div.mfp-content > div > div > ul";
 const BTN_MENU_MOBILE = $("#menu_mobile > div:nth-child(1) > div:nth-child(1) > a");
 const ISMOBILE = (ULMENU == null);
-
+let intervalNotifiche = null;
 function hashCode(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -66,6 +66,7 @@ function addAndroidMenu() {
                 try {
                     MENU_MOBILE_ITEM.innerHTML += `<li id="android_menu">`;
                     addMenuItem("android_menu","Android Menu","androidMenu()");
+                    addMenuItem("console_menu","Console","window.SAConsole.show()");
                 }catch (e) {
                     console.error("USNAME", e);
                 }
@@ -76,6 +77,7 @@ function addAndroidMenu() {
         try {
             MENU_MOBILE_ITEM.innerHTML += `<li id="android_menu">`;
             addMenuItem("android_menu","Android Menu","androidMenu()");
+            addMenuItem("console_menu","Console","window.SAConsole.show()");
         }catch (e) {
             console.error("USNAME", e);
         }
@@ -97,6 +99,7 @@ function androidNotification(notifica, isJson = false) {
     if (typeof Android !== "undefined") {
         Android.androidNotification(notifica, isJson);
     } else {
+        clearInterval(intervalNotifiche);
         console.error(USNAME,"Android interface non disponibile!");
     }
     console.debug(USNAME, notifica, isJson);
@@ -143,7 +146,7 @@ function analizzaNotifiche(html,soloNonLette = true) {
         notifiche.push(data);
 
     });
-    console.debug(USNAME, notifiche);
+    //console.debug(USNAME, notifiche);
 
     let json_notifiche = JSON.stringify(notifiche);
     androidNotification(json_notifiche, true);
@@ -179,6 +182,6 @@ function getNumeroNotifiche() {
 
 addAndroidMenu();
 getNumeroNotifiche();
-let intervalNotifiche = setInterval(function(){
+intervalNotifiche = setInterval(function(){
     getNumeroNotifiche();
-}, 10000);
+}, 30000);

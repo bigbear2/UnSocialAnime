@@ -12,9 +12,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.ConsoleMessage;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -66,11 +66,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                System.out.println("Pagina caricata: " + url);
 
-                String jsCode = loadJSFromAssets("UnSocialAnime.js");
-                if (jsCode != null) {
-                    view.evaluateJavascript(jsCode, null);
-                }
+                String jsCode = "";
+                jsCode = loadJSFromAssets("SAConsole.js");
+                if (jsCode != null) view.evaluateJavascript(jsCode, null);
+
+                jsCode = loadJSFromAssets("SANotification.js");
+                if (jsCode != null) view.evaluateJavascript(jsCode, null);
+
+                jsCode = loadJSFromAssets("SAUserSuggestions.js");
+                if (jsCode != null) view.evaluateJavascript(jsCode, null);
+
             }
         });
 
@@ -170,6 +177,18 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
+
+        @Override
+        public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+
+            String message = "Console: " + consoleMessage.message() +
+                    " (" + consoleMessage.sourceId() + ":" + consoleMessage.lineNumber() + ")";
+
+            //ShowToast(message);
+            System.out.println(message);
+            return true;
+        }
+
     }
 
     @Override
@@ -220,38 +239,25 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.context_menu, menu);
     }
 
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        // Gestisci la selezione del menu
-        if (item.getTitle().equals("Opzione 1")) {
-            return true;
-        } else if (item.getTitle().equals("Opzione 2")) {
-            return true;
-        } else if (item.getTitle().equals("Opzione 3")) {
-            return true;
-        } else {
-            return super.onContextItemSelected(item);
-        }
-    }
 
     public void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Scegli un'opzione")
-                .setItems(new String[]{"Opzione 1", "Opzione 2", "Opzione 3"}, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Gestisci la selezione dell'utente
-                        switch (which) {
-                            case 0:
-                                // Azione per l'opzione 1
-                                break;
-                            case 1:
-                                // Azione per l'opzione 2
-                                break;
-                            case 2:
-                                // Azione per l'opzione 3
-                                break;
-                        }
+        builder.setTitle("Android Menu")
+                .setItems(new String[]{
+                        "Elimina WebView Cache", "Opzione 2", "Opzione 3"
+                }, (dialog, which) -> {
+
+                    switch (which) {
+                        case 0:
+                            webView.clearCache(true);
+                            activity.ShowToast("Cache WebView Eliminata");
+                            break;
+                        case 1:
+                            // Azione per l'opzione 2
+                            break;
+                        case 2:
+                            // Azione per l'opzione 3
+                            break;
                     }
                 });
         builder.create().show();
