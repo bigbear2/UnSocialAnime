@@ -83,7 +83,7 @@ function initSuggestions(textarea, idx) {
     let currentFocus = -1;
 
     textarea.addEventListener("blur", function() {
-        hideSuggestions();
+        //setTimeout(function() {hideSuggestions();}, 1000);
     });
 
     textarea.addEventListener("focus", function() {
@@ -141,7 +141,9 @@ function initSuggestions(textarea, idx) {
         suggestionsContainer.style.top = (position.top + textarea.offsetHeight + 5) + 'px';
         suggestionsContainer.style.left = position.left + 'px';
         suggestionsContainer.style.width = position.width + 'px';
-        suggestionsContainer.innerHTML = names.map(name => `<div class="suggestion-item">${name}</div>`).join('');
+        suggestionsContainer.innerHTML = names.map(
+            name => `<div class="suggestion-item">${name}</div>`
+        ).join('');
         suggestionsContainer.style.display = 'block';
         currentFocus = -1;
     }
@@ -169,12 +171,23 @@ function initSuggestions(textarea, idx) {
         textarea.setSelectionRange(atPosition + name.length + 2, atPosition + name.length + 2);
     }
 
-    document.querySelectorAll('.suggestion-item').forEach(item => {
+    /*document.querySelectorAll('.suggestion-item').forEach(item => {
         item.addEventListener('click', function(e) {
             insertName(e.target.textContent);
         });
+    });*/
+    suggestionsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('suggestion-item')) {
+            insertName(e.target.textContent);
+        }
     });
 }
+
+/*document.addEventListener('blur', function(event) {
+    if (window._focusedElement) {
+        console.log('Elemento che ha perso il focus:', window._focusedElement);
+    }
+}, true);*/
 
 setTimeout(function() {
     try {
